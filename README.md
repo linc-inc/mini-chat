@@ -1,73 +1,83 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Mini Chat with OpenAI Integration
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project is a small application that allows users to authenticate and make requests to the OpenAI API using NestJS. The application includes user management, OpenAI integration, and security measures to protect user data.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Project Requirements
 
-## Description
+### User Management
+- **Registration Endpoint:** Allows users to register by providing necessary details (e.g., email, password).
+- **Authentication Endpoint:** Allows users to log in and receive a JWT token for session management.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### OpenAI Integration
+- **Question Endpoint:** Allows authenticated users to send questions to the OpenAI API and receive responses via Server-Sent Events (SSE). Each question and its corresponding response are stored in the database.
+- **Error Handling:** Properly handles errors from the OpenAI API.
 
-## Installation
+### Security
+- **Data Protection:** Ensures sensitive user data is stored securely.
+- **Authentication & Authorization:** Protects endpoints using JWT tokens and ensures proper access control.
 
+## Installation and Setup
+
+### Prerequisites
+- Node.js
+- yarn
+- Docker (optional, for containerized environments)
+
+### Clone the Repository
 ```bash
-$ yarn install
+git clone https://github.com/linc-inc/mini-chat.git
+cd mini-chat
 ```
 
-## Running the app
-
+### Install Dependencies
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+yarn install
 ```
 
-## Test
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+### Environment Variables
+Create a `.env` file in the root directory and add the necessary environment variables:
+```
+JWT_SECRET=your_jwt_secret
+OPENAI_API_KEY=your_openai_api_key
 ```
 
-## Support
+### Database Setup
+This project uses SQLite for the database.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Running the Application
+```bash
+yarn run start:dev
+```
 
-## Stay in touch
+### Accessing the Database
+To view and manage your SQLite database, you can use TablePlus or any other SQLite database viewer.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Endpoints Overview
 
-## License
+#### User Management
+- **POST /auth/register:** Register a new user.
+  - Request Body: `{ "email": "user@example.com", "password": "password123" }`
+- **POST /auth/login:** Authenticate a user.
+  - Request Body: `{ "email": "user@example.com", "password": "password123" }`
+  - Response: `{ "access_token": "jwt_token" }`
 
-Nest is [MIT licensed](LICENSE).
+#### OpenAI Integration
+- **POST /openai/question:** Send a question to OpenAI and receive the response via Server-Sent Events (SSE).
+  - Headers: `{ "Authorization": "Bearer jwt_token" }`
+  - Request Body: `{ "question": "What is NestJS?" }`
+  - Response: If streaming is chosen, the response will be handled via Server-Sent Events (SSE). Otherwise, the response of this endpoint will be the AI's response directly.
+  - The question and its corresponding response will be stored in the database.
+
+- **(Optional) GET /openai/stream:** Stream responses to the client's questions in real time via Server-Sent Events (SSE).
+  - Headers: { "Authorization": "Bearer jwt_token" }
+  - Response: The response from the AI will be streamed back to the client
+
+
+### Security Considerations
+- **Password Hashing:** Ensure passwords are hashed before storing in the database.
+- **JWT Expiry:** Implement expiration for JWT tokens to enhance security.
+
+## Discussion Points
+- **Approach:** Be ready to discuss how you approached the project.
+- **Tradeoffs:** Discuss any tradeoffs made due to time constraints.
+- **Next Steps:** Be prepared to outline next steps for improving scalability and security.
